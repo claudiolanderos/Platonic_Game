@@ -29,6 +29,11 @@ class APlatonicCharacter : public ACharacter
     void MoveGrappledPlayer();
     bool MoveRope();
     void StopGrapple();
+    
+    FVector vCameraPos;
+    FVector vCameraLeft;
+    FVector vCameraUp;
+    float cameraSpeed;
 
 protected:
 
