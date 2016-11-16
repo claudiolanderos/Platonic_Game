@@ -57,7 +57,7 @@ void APlatonicCharacter::BeginPlay() {
             GrappleLine->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponPoint"));
             GrappleLine->CableLength = 0;
             GrappleLine->CableWidth = 6;
-            GrappleLine->
+//            GrappleLine->
 //            GrappleLine->EndLocation = FVector::ZeroVector;
         }
     }
