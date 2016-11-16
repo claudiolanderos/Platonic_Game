@@ -62,6 +62,17 @@ void APlatonicCharacter::BeginPlay() {
 //            GrappleLine->
 //            GrappleLine->EndLocation = FVector::ZeroVector;
         }
+        
+        vCameraPos = CameraBoom->GetComponentLocation();
+        FVector vPlayerUp = this->GetActorUpVector();
+        vPlayerUp.Normalize();
+        vCameraUp = CameraBoom->GetUpVector();
+        vCameraUp.Normalize();
+        FVector vCameraForward = CameraBoom->GetForwardVector();
+        vCameraForward.Normalize();
+        vCameraLeft = FVector::CrossProduct(vPlayerUp, vCameraForward);
+        vCameraLeft.Normalize();
+        cameraSpeed = 5;
     }
 }
 
@@ -186,6 +197,11 @@ void APlatonicCharacter::Tick(float deltaTime) {
             HookMoveFinished = MoveRope();
         }
     }
+    
+    float vertical = CameraBoom->GetComponentLocation().Z - vCameraPos.Z;
+    
+    vCameraPos += vCameraLeft * cameraSpeed + (FVector(0.f, 0.f, vertical));
+    CameraBoom->SetWorldLocation(vCameraPos);
 }
 
 bool APlatonicCharacter::MoveRope() {
