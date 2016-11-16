@@ -37,7 +37,9 @@ APlatonicCharacter::APlatonicCharacter()
 	GetCharacterMovement()->GroundFriction = 3.f;
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
-
+    // Initialise the can crouch property
+    GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+    
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
     
@@ -73,6 +75,8 @@ void APlatonicCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlatonicCharacter::MoveRight);
     PlayerInputComponent->BindAction("Grapple", IE_Pressed, this, &APlatonicCharacter::Grapple);
+    PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlatonicCharacter::StartCrouch);
+    PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlatonicCharacter::StopCrouch);
 
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &APlatonicCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &APlatonicCharacter::TouchStopped);
@@ -87,6 +91,19 @@ void APlatonicCharacter::Jump() {
         StopGrapple();
         Super::Jump();
     }
+}
+
+void APlatonicCharacter::StartCrouch()
+{
+    if(CanCrouch() == true)
+    {
+        Crouch();
+    }
+}
+
+void APlatonicCharacter::StopCrouch()
+{
+    UnCrouch();
 }
 
 

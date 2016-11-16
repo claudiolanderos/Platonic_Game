@@ -57,6 +57,10 @@ public:
     
     void Jump() override;
 
+    void StartCrouch();
+    
+    void StopCrouch();
+    
 	/** Returns SideViewCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
