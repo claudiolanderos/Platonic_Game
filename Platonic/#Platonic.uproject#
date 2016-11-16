@@ -7,10 +7,9 @@
 		{
 			"Name": "Platonic",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"CableComponent"
-			]
+			"LoadingPhase": "Default"
 		}
+	"AdditionalDependencies": [
+	]
 	]
 }

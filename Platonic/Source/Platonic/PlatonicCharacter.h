@@ -15,11 +15,27 @@ class APlatonicCharacter : public ACharacter
 	/** Camera boom positioning the camera beside the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
+    
+    UPROPERTY(Category = Cable, EditAnywhere) class UCableComponent* GrappleLine;
+
+    float GrappleRange = 5000.0f;
+    
+    FVector hookLocation = FVector::ZeroVector;
+    
+    float grappleSpeed = 1.0f;
+    bool Hooked = false;
+    bool HookMoveFinished = false;
+    
+    void MoveGrappledPlayer();
+    bool MoveRope();
+    void StopGrapple();
 
 protected:
 
 	/** Called for side to side input */
 	void MoveRight(float Val);
+    
+    void Tick(float deltaTime) override;
 
 	/** Handle touch inputs. */
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
@@ -34,9 +50,18 @@ protected:
 
 public:
 	APlatonicCharacter();
+    
+    void BeginPlay() override;
+    
+    void Grapple();
+    
+    void Jump() override;
 
 	/** Returns SideViewCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+    
+    FORCEINLINE class UCableComponent* GetGrappleLine() const { return GrappleLine; }
+    
 };
