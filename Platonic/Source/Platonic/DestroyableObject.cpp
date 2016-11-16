@@ -26,7 +26,3 @@ void ADestroyableObject::Tick( float DeltaTime )
 
 }
 
-void ADestroyableObject::BeginTouch()
-{
-    
-}

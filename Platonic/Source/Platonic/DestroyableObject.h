@@ -19,9 +19,7 @@ public:
 	
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
-
-    virtual void BeginTouch() override;
-	
+    
 	// TODO UPROPERTY for destroyed animation
     
 };
