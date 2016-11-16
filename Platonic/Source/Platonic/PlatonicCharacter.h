@@ -22,7 +22,7 @@ class APlatonicCharacter : public ACharacter
     
     FVector hookLocation = FVector::ZeroVector;
     
-    float grappleSpeed = 10;
+    float grappleSpeed = 1.0f;
     bool Hooked = false;
     bool HookMoveFinished = false;
     

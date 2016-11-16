@@ -53,11 +53,12 @@ void APlatonicCharacter::BeginPlay() {
     {
         if (GrappleLine)
         {
-            GrappleLine->SetVisibility(false);
+//            GrappleLine->SetVisibility(false);
             GrappleLine->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponPoint"));
             GrappleLine->CableLength = 0;
             GrappleLine->CableWidth = 6;
-            GrappleLine->EndLocation = FVector::ZeroVector;
+            GrappleLine->
+//            GrappleLine->EndLocation = FVector::ZeroVector;
         }
     }
 }
@@ -133,7 +134,7 @@ void APlatonicCharacter::Grapple()
     {
         Hooked = true;
         hookLocation = Hit.Location;
-        GrappleLine->EndLocation = hookLocation;
+//        GrappleLine->EndLocation = hookLocation;
     }
     else
     {
@@ -145,10 +146,7 @@ void APlatonicCharacter::Grapple()
 void APlatonicCharacter::Tick(float deltaTime) {
     if (Hooked) {
         if (HookMoveFinished) {
-            // Move Player
             MoveGrappledPlayer();
-//            auto ropeLoc = FMath::VInterpTo(GrappleLine->GetComponentLocation(), hookLocation, this->GetWorld()->GetTimeSeconds(), 250);
-//            GrappleLine->SetWorldLocation(ropeLoc);
             StopGrapple();
         } else {
             HookMoveFinished = MoveRope();
@@ -166,7 +164,7 @@ bool APlatonicCharacter::MoveRope() {
     if (result.Size() <= 100.0f) {
         reachedLocation = true;
     } else {
-        auto interpLoc = FMath::VInterpTo(GrappleLine->GetComponentLocation(), hookLocation, this->GetWorld()->GetTimeSeconds(), 15);
+        auto interpLoc = FMath::VInterpTo(GrappleLine->GetComponentLocation(), hookLocation, this->GetWorld()->GetTimeSeconds(), 0.1);
         GrappleLine->SetWorldLocation(interpLoc);
         reachedLocation = false;
     }
@@ -183,7 +181,7 @@ void APlatonicCharacter::MoveGrappledPlayer() {
 void APlatonicCharacter::StopGrapple() {
     Hooked = false;
     HookMoveFinished = false;
-    GrappleLine->SetVisibility(false);
-    GrappleLine->EndLocation = FVector::ZeroVector;
+//    GrappleLine->SetVisibility(false);
+//    GrappleLine->EndLocation = FVector::ZeroVector;
     GrappleLine->SetWorldLocation(this->GetActorLocation());
 }
