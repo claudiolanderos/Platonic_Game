@@ -77,7 +77,8 @@ void APlatonicCharacter::SetupPlayerInputComponent(class UInputComponent* Player
     PlayerInputComponent->BindAction("Grapple", IE_Pressed, this, &APlatonicCharacter::Grapple);
     PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlatonicCharacter::StartCrouch);
     PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlatonicCharacter::StopCrouch);
-
+    PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlatonicCharacter::BeginSprint);
+    PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlatonicCharacter::EndSprint);
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &APlatonicCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &APlatonicCharacter::TouchStopped);
 }
@@ -106,11 +107,24 @@ void APlatonicCharacter::StopCrouch()
     UnCrouch();
 }
 
+void APlatonicCharacter::BeginSprint()
+{
+    bIsSprinting = true;
+}
+
+void APlatonicCharacter::EndSprint()
+{
+    bIsSprinting = false;
+}
 
 void APlatonicCharacter::MoveRight(float Value)
 {
 	// add movement in that direction
-	AddMovementInput(FVector(0.f,-1.f,0.f), Value);
+    if(bIsSprinting)
+    {
+        Value *= 2;
+    }
+	AddMovementInput(FVector(0.f,-1.f,0.f), Value / 2);
 }
 
 void APlatonicCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
