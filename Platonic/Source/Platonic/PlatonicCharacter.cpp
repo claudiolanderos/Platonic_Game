@@ -110,12 +110,14 @@ void APlatonicCharacter::StartCrouch()
     if(CanCrouch() == true)
     {
         Crouch();
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Crouching"));
     }
 }
 
 void APlatonicCharacter::StopCrouch()
 {
     UnCrouch();
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Stop Crouching"));
 }
 
 void APlatonicCharacter::BeginSprint()
@@ -123,12 +125,15 @@ void APlatonicCharacter::BeginSprint()
     if(!bIsCrouched)
     {
         bIsSprinting = true;
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Sprinting"));
     }
 }
 
 void APlatonicCharacter::EndSprint()
 {
     bIsSprinting = false;
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Stop Sprinting"));
+
 }
 
 void APlatonicCharacter::MoveRight(float Value)
