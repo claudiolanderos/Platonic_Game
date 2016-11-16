@@ -109,7 +109,10 @@ void APlatonicCharacter::StopCrouch()
 
 void APlatonicCharacter::BeginSprint()
 {
-    bIsSprinting = true;
+    if(!bIsCrouched)
+    {
+        bIsSprinting = true;
+    }
 }
 
 void APlatonicCharacter::EndSprint()
