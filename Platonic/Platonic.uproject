@@ -9,11 +9,8 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-<<<<<<< HEAD
-				"Engine"
-=======
+				"Engine",
 				"CableComponent"
->>>>>>> 17c1c168485d3156bdc90a0a0a855a045ff82ef6
 			]
 		}
 	]

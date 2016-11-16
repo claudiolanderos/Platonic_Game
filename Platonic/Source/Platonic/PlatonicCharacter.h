@@ -18,7 +18,7 @@ class APlatonicCharacter : public ACharacter
     
     UPROPERTY(Category = Cable, EditAnywhere) class UCableComponent* GrappleLine;
 
-    float GrappleRange = 5000.0f;
+    float GrappleRange = 2000.0f;
     
     FVector hookLocation = FVector::ZeroVector;
     

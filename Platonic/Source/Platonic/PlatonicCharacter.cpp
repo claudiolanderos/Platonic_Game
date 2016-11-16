@@ -3,6 +3,7 @@
 #include "Platonic.h"
 #include "PlatonicCharacter.h"
 #include "CableComponent.h"
+#include "Engine.h"
 
 APlatonicCharacter::APlatonicCharacter()
 {
@@ -107,11 +108,9 @@ void APlatonicCharacter::Jump() {
 
 void APlatonicCharacter::StartCrouch()
 {
-    if(CanCrouch() == true)
-    {
-        Crouch();
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Crouching"));
-    }
+    Crouch();
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Crouching"));
+
 }
 
 void APlatonicCharacter::StopCrouch()
