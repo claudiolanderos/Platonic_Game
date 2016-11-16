@@ -3,6 +3,7 @@
 #include "Platonic.h"
 #include "PlatonicCharacter.h"
 #include "CableComponent.h"
+#include "Engine.h"
 
 APlatonicCharacter::APlatonicCharacter()
 {
@@ -37,7 +38,9 @@ APlatonicCharacter::APlatonicCharacter()
 	GetCharacterMovement()->GroundFriction = 3.f;
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
-
+    // Initialise the can crouch property
+    GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+    
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
     
@@ -60,6 +63,17 @@ void APlatonicCharacter::BeginPlay() {
 //            GrappleLine->
 //            GrappleLine->EndLocation = FVector::ZeroVector;
         }
+        
+        vCameraPos = CameraBoom->GetComponentLocation();
+        FVector vPlayerUp = this->GetActorUpVector();
+        vPlayerUp.Normalize();
+        vCameraUp = CameraBoom->GetUpVector();
+        vCameraUp.Normalize();
+        FVector vCameraForward = CameraBoom->GetForwardVector();
+        vCameraForward.Normalize();
+        vCameraLeft = FVector::CrossProduct(vPlayerUp, vCameraForward);
+        vCameraLeft.Normalize();
+        cameraSpeed = 5;
     }
 }
 
@@ -73,7 +87,10 @@ void APlatonicCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlatonicCharacter::MoveRight);
     PlayerInputComponent->BindAction("Grapple", IE_Pressed, this, &APlatonicCharacter::Grapple);
-
+    PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlatonicCharacter::StartCrouch);
+    PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlatonicCharacter::StopCrouch);
+    PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlatonicCharacter::BeginSprint);
+    PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlatonicCharacter::EndSprint);
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &APlatonicCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &APlatonicCharacter::TouchStopped);
 }
@@ -89,11 +106,43 @@ void APlatonicCharacter::Jump() {
     }
 }
 
+void APlatonicCharacter::StartCrouch()
+{
+    Crouch();
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Crouching"));
+
+}
+
+void APlatonicCharacter::StopCrouch()
+{
+    UnCrouch();
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Stop Crouching"));
+}
+
+void APlatonicCharacter::BeginSprint()
+{
+    if(!bIsCrouched)
+    {
+        bIsSprinting = true;
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Sprinting"));
+    }
+}
+
+void APlatonicCharacter::EndSprint()
+{
+    bIsSprinting = false;
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Stop Sprinting"));
+
+}
 
 void APlatonicCharacter::MoveRight(float Value)
 {
 	// add movement in that direction
-	AddMovementInput(FVector(0.f,-1.f,0.f), Value);
+    if(bIsSprinting)
+    {
+        Value *= 2;
+    }
+	AddMovementInput(FVector(0.f,-1.f,0.f), Value / 2);
 }
 
 void APlatonicCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
@@ -152,6 +201,11 @@ void APlatonicCharacter::Tick(float deltaTime) {
             HookMoveFinished = MoveRope();
         }
     }
+    
+    float vertical = CameraBoom->GetComponentLocation().Z - vCameraPos.Z;
+    
+    vCameraPos += vCameraLeft * cameraSpeed + (FVector(0.f, 0.f, vertical));
+    CameraBoom->SetWorldLocation(vCameraPos);
 }
 
 bool APlatonicCharacter::MoveRope() {

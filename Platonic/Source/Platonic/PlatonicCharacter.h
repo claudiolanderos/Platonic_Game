@@ -18,7 +18,7 @@ class APlatonicCharacter : public ACharacter
     
     UPROPERTY(Category = Cable, EditAnywhere) class UCableComponent* GrappleLine;
 
-    float GrappleRange = 5000.0f;
+    float GrappleRange = 2000.0f;
     
     FVector hookLocation = FVector::ZeroVector;
     
@@ -29,6 +29,11 @@ class APlatonicCharacter : public ACharacter
     void MoveGrappledPlayer();
     bool MoveRope();
     void StopGrapple();
+    
+    FVector vCameraPos;
+    FVector vCameraLeft;
+    FVector vCameraUp;
+    float cameraSpeed;
 
 protected:
 
@@ -57,6 +62,16 @@ public:
     
     void Jump() override;
 
+    void StartCrouch();
+    
+    void StopCrouch();
+    
+    void BeginSprint();
+    
+    void EndSprint();
+    
+    bool bIsSprinting = false;
+    
 	/** Returns SideViewCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
