@@ -23,7 +23,7 @@ APlatonicCharacter::APlatonicCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->bAbsoluteRotation = true; // Rotation of the character should not affect rotation of boom
 	CameraBoom->bDoCollisionTest = false;
-	CameraBoom->TargetArmLength = 500.f;
+	CameraBoom->TargetArmLength = 750.f;
 	CameraBoom->SocketOffset = FVector(0.f,0.f,75.f);
 	CameraBoom->RelativeRotation = FRotator(0.f,180.f,0.f);
 
@@ -51,7 +51,9 @@ APlatonicCharacter::APlatonicCharacter()
     
     // Add GrappleLine
     GrappleLine = CreateDefaultSubobject<UCableComponent>(TEXT("GrappleLine"));
-    
+    GrappleLine->SetWorldLocation(this->GetActorLocation());
+    GrappleLine->SetVisibility(false);
+
     MyWeapon = nullptr;
 }
 
@@ -247,7 +249,7 @@ void APlatonicCharacter::Tick(float deltaTime) {
     
     FVector PlayerPos = this->GetActorLocation();
     
-    // check if surpassed left-bounds
+    // check if surpassed left-boundscam
     if (vCameraPos.Y + 650 < PlayerPos.Y) {
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("STARTING OVER"));
         FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
