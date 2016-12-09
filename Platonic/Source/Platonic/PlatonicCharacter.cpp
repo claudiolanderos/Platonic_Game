@@ -4,6 +4,7 @@
 #include "PlatonicCharacter.h"
 #include "CableComponent.h"
 #include "Engine.h"
+//#include "Blueprint/UserWidget.h"
 #include <cmath>        // std::abs
 
 APlatonicCharacter::APlatonicCharacter()
@@ -87,9 +88,19 @@ void APlatonicCharacter::BeginPlay() {
         vCameraForward.Normalize();
         vCameraLeft = FVector::CrossProduct(vPlayerUp, vCameraForward);
         vCameraLeft.Normalize();
-        cameraSpeed = 2.5;
+        cameraSpeed = 100;
     }
+    
+    APlayerController* playerController = GetWorld()->GetFirstPlayerController();
+    hud = playerController->GetHUD();
+//    hud->DrawHUD();
+    
+//    FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+//    hud->DrawText(CurrentLevel, FLinearColor::White, ViewportSize.X/2, ViewportSize.Y/2);
+//    hud->ShowHUD();
+    
 }
+
 
 // Input
 
@@ -218,21 +229,28 @@ void APlatonicCharacter::Tick(float deltaTime) {
         }
     }
     
+    // camera tracks player's vertical
+    float vertical = CameraBoom->GetComponentLocation().Z - vCameraPos.Z;
+    
     FVector PlayerPos = this->GetActorLocation();
     
     // check if surpassed left-bounds
-    if (vCameraPos.Y + 450 < PlayerPos.Y) {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PASSED LEFT"));
+    if (vCameraPos.Y + 650 < PlayerPos.Y) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("STARTING OVER"));
+        FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+//        hud->DrawText("STARTING OVER", FLinearColor::White, ViewportSize.X/2, ViewportSize.Y/2);
+//        hud->ShowHUD();
+        UGameplayStatics::OpenLevel(GetWorld(),FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
     }
     
     // check if surpassed right-bounds (2/3 from the left side of screen)
     if (vCameraPos.Y - 300 > PlayerPos.Y) {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PASSED RIGHT"));
+//        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PASSED RIGHT"));
+        vCameraPos += vCameraLeft * (vCameraPos.Y - 300 - PlayerPos.Y) + (FVector(0.f, 0.f, vertical));
+    } else {
+        vCameraPos += vCameraLeft * cameraSpeed * deltaTime + (FVector(0.f, 0.f, vertical));
     }
-    
-    float vertical = CameraBoom->GetComponentLocation().Z - vCameraPos.Z;
 
-    vCameraPos += vCameraLeft * cameraSpeed + (FVector(0.f, 0.f, vertical));
     CameraBoom->SetWorldLocation(vCameraPos);
 }
 
