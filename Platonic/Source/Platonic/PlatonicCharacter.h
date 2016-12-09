@@ -17,14 +17,17 @@ class APlatonicCharacter : public ACharacter
 	class USpringArmComponent* CameraBoom;
     
     UPROPERTY(Category = Cable, EditAnywhere) class UCableComponent* GrappleLine;
+    
+    UPROPERTY(EditAnywhere) class UPhysicsConstraintComponent* PhysicsComponent;
 
     float GrappleRange = 2000.0f;
     
     FVector hookLocation = FVector::ZeroVector;
     
-    float grappleSpeed = 1.0f;
+    float grappleSpeed = 0.8f;
     bool Hooked = false;
     bool HookMoveFinished = false;
+    bool playerMoveFinished = false;
     
     void MoveGrappledPlayer();
     bool MoveRope();

@@ -4,6 +4,7 @@
 #include "PlatonicCharacter.h"
 #include "CableComponent.h"
 #include "Engine.h"
+#include <cmath>        // std::abs
 
 APlatonicCharacter::APlatonicCharacter()
 {
@@ -38,6 +39,8 @@ APlatonicCharacter::APlatonicCharacter()
 	GetCharacterMovement()->GroundFriction = 3.f;
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
+//    GetCharacterMovement()->bConstrainToPlane = true;
+//    GetCharacterMovement()->SetPlaneConstraintFromVectors(GetActorForwardVector(), GetActorUp)
     // Initialise the can crouch property
     GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
     
@@ -46,11 +49,23 @@ APlatonicCharacter::APlatonicCharacter()
     
     // Add GrappleLine
     GrappleLine = CreateDefaultSubobject<UCableComponent>(TEXT("GrappleLine"));
+    
+//    PhysicsComponent = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("Physics"));
+//    PhysicsComponent->Component->
 }
 
 void APlatonicCharacter::BeginPlay() {
-   
     Super::BeginPlay();
+    
+    APlayerController* MyController = GetWorld()->GetFirstPlayerController();
+    
+    if (MyController)
+    {
+        MyController->bShowMouseCursor = true;
+        MyController->bEnableClickEvents = true;
+        MyController->bEnableMouseOverEvents = true;
+    }
+    
     UWorld* World = GetWorld();
     if (World)
     {
@@ -61,7 +76,6 @@ void APlatonicCharacter::BeginPlay() {
             GrappleLine->CableLength = 0;
             GrappleLine->CableWidth = 6;
 //            GrappleLine->
-//            GrappleLine->EndLocation = FVector::ZeroVector;
         }
         
         vCameraPos = CameraBoom->GetComponentLocation();
@@ -73,11 +87,10 @@ void APlatonicCharacter::BeginPlay() {
         vCameraForward.Normalize();
         vCameraLeft = FVector::CrossProduct(vPlayerUp, vCameraForward);
         vCameraLeft.Normalize();
-        cameraSpeed = 5;
+        cameraSpeed = 2.5;
     }
 }
 
-//////////////////////////////////////////////////////////////////////////
 // Input
 
 void APlatonicCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -162,48 +175,51 @@ void APlatonicCharacter::Grapple()
     static FName MuzzleSocket = FName(TEXT("MuzzleFlashSocket"));
     // Start from the muzzle's position
     FVector StartPos = this->GetActorLocation();
-    // Get forward vector of MyPawn
-    FVector Forward = GetActorForwardVector();
-    // Calculate end position
-    FVector EndPos = Forward * GrappleRange + StartPos;
+    APlayerController* playerController = GetWorld()->GetFirstPlayerController();
+    float x,y;
     
-    // Perform trace to retrieve hit info
-    FCollisionQueryParams TraceParams(WeaponFireTag, true, Instigator);
-    TraceParams.bTraceAsyncScene = true;
-    TraceParams.bReturnPhysicalMaterial = true;
-    
-    // This fires the ray and checks against all objects w/ collision
-    FHitResult Hit(ForceInit);
-    GetWorld()->LineTraceSingleByObjectType(Hit, StartPos, EndPos, FCollisionObjectQueryParams::AllObjects, TraceParams);
-    
-    FVector loc = FVector::ZeroVector;
-    
-    // Did this hit anything?
-    if (Hit.bBlockingHit)
+    if (!playerController->GetMousePosition(x, y))
     {
-        Hooked = true;
-        hookLocation = Hit.Location;
-//        GrappleLine->EndLocation = hookLocation;
+        UE_LOG(LogTemp, Log, TEXT("Failed"));
+    } else {
+        UE_LOG(LogTemp, Log, TEXT("Succeded"));
     }
-    else
+    FVector2D MousePosition(x, y);
+    FHitResult HitResult;
+    const bool bTraceComplex = false;
+    if (playerController->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, bTraceComplex, HitResult) == true )
     {
-        Hooked = false;
-        StopGrapple();
+        // If the actor we intersected with is a controller posses it
+        if (HitResult.bBlockingHit && std::abs(HitResult.Location.X - StartPos.X) < 50.0f)
+        {
+            Hooked = true;
+            hookLocation = HitResult.Location;
+        }
+        else
+        {
+            Hooked = false;
+            HookMoveFinished = false;
+            StopGrapple();
+        }
     }
 }
 
 void APlatonicCharacter::Tick(float deltaTime) {
     if (Hooked) {
         if (HookMoveFinished) {
-            MoveGrappledPlayer();
-            StopGrapple();
+            if (!playerMoveFinished) {
+                MoveGrappledPlayer();
+            }
+            else {
+                StopGrapple();
+            }
         } else {
             HookMoveFinished = MoveRope();
         }
     }
     
     float vertical = CameraBoom->GetComponentLocation().Z - vCameraPos.Z;
-    
+
     vCameraPos += vCameraLeft * cameraSpeed + (FVector(0.f, 0.f, vertical));
     CameraBoom->SetWorldLocation(vCameraPos);
 }
@@ -216,26 +232,29 @@ bool APlatonicCharacter::MoveRope() {
     FVector result = hookLocation - loc;
     bool reachedLocation;
     if (result.Size() <= 100.0f) {
-        reachedLocation = true;
+        return true;
     } else {
         auto interpLoc = FMath::VInterpTo(GrappleLine->GetComponentLocation(), hookLocation, this->GetWorld()->GetTimeSeconds(), 0.1);
         GrappleLine->SetWorldLocation(interpLoc);
-        reachedLocation = false;
+        return false;
     }
-    
-    return reachedLocation;
 }
 
 void APlatonicCharacter::MoveGrappledPlayer() {
     auto loc = hookLocation - this->GetActorLocation();
-    loc *= this->GetWorld()->GetTimeSeconds() * grappleSpeed;
+    loc.Normalize();
+    loc *= 2500;
     LaunchCharacter(loc, true, true);
+    if ((hookLocation - this->GetActorLocation()).Size() < 200.0f) {
+        playerMoveFinished = true;
+    }
 }
 
 void APlatonicCharacter::StopGrapple() {
     Hooked = false;
     HookMoveFinished = false;
-//    GrappleLine->SetVisibility(false);
+    playerMoveFinished = false;
+    GrappleLine->SetVisibility(false);
 //    GrappleLine->EndLocation = FVector::ZeroVector;
     GrappleLine->SetWorldLocation(this->GetActorLocation());
 }
