@@ -81,6 +81,7 @@ public:
     
     bool bIsSprinting = false;
     
+    
 	/** Returns SideViewCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
