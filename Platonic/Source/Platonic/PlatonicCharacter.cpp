@@ -3,6 +3,7 @@
 #include "Platonic.h"
 #include "PlatonicCharacter.h"
 #include "CableComponent.h"
+#include "Weapon.h"
 #include "Engine.h"
 #include <cmath>        // std::abs
 
@@ -50,12 +51,26 @@ APlatonicCharacter::APlatonicCharacter()
     // Add GrappleLine
     GrappleLine = CreateDefaultSubobject<UCableComponent>(TEXT("GrappleLine"));
     
-//    PhysicsComponent = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("Physics"));
-//    PhysicsComponent->Component->
+    MyWeapon = nullptr;
 }
 
 void APlatonicCharacter::BeginPlay() {
     Super::BeginPlay();
+    
+    if (Weapon) {
+        UWorld* World = GetWorld();
+        if (World) {
+            FActorSpawnParameters SpawnParams;
+            SpawnParams.Owner = this;
+            SpawnParams.Instigator = Instigator; // Need to set rotation like this because otherwise gun points down
+            FRotator Rotation(0.0f, 0.0f, -90.0f);
+            // Spawn the Weapon
+            MyWeapon = World->SpawnActor<AWeapon>(Weapon, FVector::ZeroVector, Rotation, SpawnParams);
+            if (MyWeapon) { // This is attached to "WeaponPoint" which is defined in the skeleton
+                MyWeapon->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponPoint"));
+            }
+        }
+    }
     
     APlayerController* MyController = GetWorld()->GetFirstPlayerController();
     
@@ -171,8 +186,6 @@ void APlatonicCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const
 
 void APlatonicCharacter::Grapple()
 {
-    static FName WeaponFireTag = FName(TEXT("WeaponTrace"));
-    static FName MuzzleSocket = FName(TEXT("MuzzleFlashSocket"));
     // Start from the muzzle's position
     FVector StartPos = this->GetActorLocation();
     APlayerController* playerController = GetWorld()->GetFirstPlayerController();
