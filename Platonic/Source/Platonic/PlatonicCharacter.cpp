@@ -267,6 +267,5 @@ void APlatonicCharacter::StopGrapple() {
     HookMoveFinished = false;
     playerMoveFinished = false;
     GrappleLine->SetVisibility(false);
-//    GrappleLine->EndLocation = FVector::ZeroVector;
     GrappleLine->SetWorldLocation(this->GetActorLocation());
 }
