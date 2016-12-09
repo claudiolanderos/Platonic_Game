@@ -218,6 +218,18 @@ void APlatonicCharacter::Tick(float deltaTime) {
         }
     }
     
+    FVector PlayerPos = this->GetActorLocation();
+    
+    // check if surpassed left-bounds
+    if (vCameraPos.Y + 450 < PlayerPos.Y) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PASSED LEFT"));
+    }
+    
+    // check if surpassed right-bounds (2/3 from the left side of screen)
+    if (vCameraPos.Y - 300 > PlayerPos.Y) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PASSED RIGHT"));
+    }
+    
     float vertical = CameraBoom->GetComponentLocation().Z - vCameraPos.Z;
 
     vCameraPos += vCameraLeft * cameraSpeed + (FVector(0.f, 0.f, vertical));
