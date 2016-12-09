@@ -40,9 +40,12 @@ class APlatonicCharacter : public ACharacter
     FVector vCameraLeft;
     FVector vCameraUp;
     float cameraSpeed;
+    class AWeapon* MyWeapon;
 
 protected:
 
+    UPROPERTY(EditAnywhere, Category = Weapon) TSubclassOf<class AWeapon> Weapon;
+    
 	/** Called for side to side input */
 	void MoveRight(float Val);
     
